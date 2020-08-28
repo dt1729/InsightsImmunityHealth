@@ -20,7 +20,10 @@ def dailyInsights(df_day):
 def findingDaysfromWeek(week_num,insightDuration,daily_data):
     # week start should be a multiple of 7 or 0
     # might have to make it week_num - 1 if the year is normal currently leap year so week_num-2
-    week_start = 7*(week_num-2)
+    if week_num < 100:
+        week_start = 7*(week_num-1)
+    else:
+        week_start = 7*(week_num-2)
     return daily_data[week_start:week_start+7*insightDuration]['Steps'], daily_data[week_start:week_start+7*10]['Steps']
 
 def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
@@ -73,11 +76,20 @@ def gettingInsights():
     steps_per_day,steps_per_week = csv_to_pd()
 #     print(steps_per_day)
     dict4week,dict3week,dict2week = setofInsightMonthly(steps_per_week,threeWeek = True,twoWeek = True)
-    dailydatanumpy1,dailydata12week = findingDaysfromWeek(dict4week['weeknum'][0],4,steps_per_day)
+
+    dailydatanumpy1,dailydata12week = findingDaysfromWeek(1,4,steps_per_day)
 #     print(dailydatanumpy1)
-    dailydatanumpy2,_ = findingDaysfromWeek(dict2week['weeknum'][23],2,steps_per_day)
+    dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][0],4,steps_per_day)
+    insight = []
+    for i in range(1,len(dict4week['weeknum'])):
+        dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][i],4,steps_per_day)
+        t_stat,_,_,p =  tTest(dailydatanumpy1,dailydatanumpy2,0.25)
+        print(t_stat)
+        print(p)
+        if t_stat > p:
+            insight.append(dict2week['weeknum'][i])
     # two 4 week insight comparison
-    return tTest(dailydatanumpy1,dailydatanumpy2,0.05)
+    return insight
 
 def printInsight(start, end, daily = False, weekly = False):
     dailyData,weeklyData = csv_to_pd()
