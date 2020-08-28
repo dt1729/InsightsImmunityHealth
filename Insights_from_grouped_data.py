@@ -23,20 +23,20 @@ def findingDaysfromWeek(week_num,insightDuration,daily_data):
     week_start = 7*(week_num-2)
     return daily_data[week_start:week_start+7*insightDuration][2]
 # combining this with 
-def setofInsightMonthly(steps_week,steps_days,threeWeek = False,twoWeek = False):
+def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
 #   THIS FUNCTION FINDS and STORES THE INSIGHTS ON THE BASIS OF A 4WEEK/28DAY PERIOD 
 #   ALSO FINDS ON THE BASIS OF 3 and 2 weeks
     steps_week_np = steps_week.to_numpy()
     steps_12week = np.flip(steps_week_np[len(steps_week_np)-13:len(steps_week_np)-2],axis = 0) #flipping the last to the first for easier access to indices 
-    sliding_insight_four_week = np.zeros(len(steps_12week) - 5) #hardcoded sliding possibilities according to a month
-    sliding_insight_three_week = np.zeros(len(steps_12week) - 4)
-    sliding_insight_two_week = np.zeros(len(steps_12week) - 3)
+    sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 4),'stdDev':np.zeros(len(steps_12week) - 4),'weeknum':steps_week_np[0][0]} #hardcoded sliding possibilities according to a month
+    sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':steps_week_np[0][0]}
+    sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':steps_week_np[0][0]}
 #     finding mean of Grouped weekly data
-    sliding_insight_four_week = [np.mean(steps_12week[i:i+4,1]) for i in range(0,len(steps_12week)-5)]
+    sliding_insight_four_week['mean'] = [np.mean(steps_12week[i:i+4,1]) for i in range(0,len(steps_12week)-4)]
     if threeWeek:
-        sliding_insight_three_week = [np.mean(steps_12week[i:i+3,1]) for i in range(0,len(steps_12week)-4)]
+        sliding_insight_three_week['mean'] = [np.mean(steps_12week[i:i+3,1]) for i in range(0,len(steps_12week)-3)]
     if twoWeek:
-        sliding_insight_two_week = [np.mean(steps_12week[i:i+2,1]) for i in range(0,len(steps_12week)-3)]
+        sliding_insight_two_week['mean'] = [(np.mean(steps_12week[i:i+2,1])) for i in range(0,len(steps_12week)-2)]
     return sliding_insight_four_week,sliding_insight_three_week,sliding_insight_two_week
 # CAN USE THIS OR STUDENT'S T TEST
 def tTest(data1,data2,alpha):
@@ -63,7 +63,9 @@ def tTest(data1,data2,alpha):
 	p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
 	# return everything
 	return t_stat, df, cv, p
-
+def gettingInsights():
+    steps_per_day,steps_per_week = csv_to_pd()
+    dict4week,dict3week,dict2week = 
 
 def printInsight(start, end, daily = False, weekly = False):
     dailyData,weeklyData = csv_to_pd()
