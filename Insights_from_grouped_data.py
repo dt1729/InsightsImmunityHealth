@@ -58,7 +58,7 @@ def tTest(data1,data2,alpha):
     # standard error of the difference between the means
     num = (mean1 - mean2)
     # calculate the t statistic
-    t_stat = num/den
+    t_stat = abs(num/den)
     # degrees of freedom
     df = ((s1**2/n1) + (s2**2/n2))**2/((s1**2/n1)**2/(n1-1) + (s2**2/n2)**2/(n2-1))
     # calculate the critical value
@@ -75,7 +75,7 @@ def gettingInsights():
     dict4week,dict3week,dict2week = setofInsightMonthly(steps_per_week,threeWeek = True,twoWeek = True)
     dailydatanumpy1,dailydata12week = findingDaysfromWeek(dict4week['weeknum'][0],4,steps_per_day)
 #     print(dailydatanumpy1)
-    dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][1],4,steps_per_day)
+    dailydatanumpy2,_ = findingDaysfromWeek(dict2week['weeknum'][23],2,steps_per_day)
     # two 4 week insight comparison
     return tTest(dailydatanumpy1,dailydatanumpy2,0.05)
 
