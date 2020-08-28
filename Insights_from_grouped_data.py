@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import scipy
 
 def csv_to_pd():
     steps_per_day = pd.read_csv('steps_per_day_shashank.csv')
@@ -15,6 +16,12 @@ def dailyInsights(df_day):
     dailyChanges = np.zeros_like(df_day['Steps'])
     for i in range(1,len(weeklyChanges)):
         weeklyChanges[i] = df_day['Steps'][i] - df_day['Steps'][i-1]
+# give this function numpy data input
+def findingDaysfromWeek(week_num,insightDuration,daily_data):
+    # week start should be a multiple of 7 or 0
+    # might have to make it week_num - 1 if the year is normal currently leap year so week_num-2
+    week_start = 7*(week_num-2)
+    return daily_data[week_start:week_start+7*insightDuration][2]
 # combining this with 
 def setofInsightMonthly(steps_week,steps_days,threeWeek = False,twoWeek = False):
 #   THIS FUNCTION FINDS and STORES THE INSIGHTS ON THE BASIS OF A 4WEEK/28DAY PERIOD 
@@ -32,9 +39,31 @@ def setofInsightMonthly(steps_week,steps_days,threeWeek = False,twoWeek = False)
         sliding_insight_two_week = [np.mean(steps_12week[i:i+2,1]) for i in range(0,len(steps_12week)-3)]
     return sliding_insight_four_week,sliding_insight_three_week,sliding_insight_two_week
 # CAN USE THIS OR STUDENT'S T TEST
-def gaussianModel(mean,variance)
-    return 
-# 
+def tTest(data1,data2,alpha):
+	# calculate means
+	mean1, mean2 = mean(data1), mean(data2)
+	# number of paired samples
+	n1 = len(data1)
+    n2 = len(data2)
+	# sum squared difference between observations
+	sp = np.std(data1)**2
+	# sum difference between observations
+	s2 = np.std(data2)**2
+	# standard deviation of the difference between means
+	den = np.sqrt(s1/len(data1) + s2/len(data2))
+	# standard error of the difference between the means
+	num = (mean1 - mean2)
+	# calculate the t statistic
+	t_stat = num/den
+	# degrees of freedom
+	df = ((s1**2/n1) + (s2**2/n2))**2/((s1**2/n1)**2/(n1-1) + (s2**2/n2)**2/(n2-1))
+	# calculate the critical value
+	cv = t.ppf(1.0 - alpha, df)
+	# calculate the p-value
+	p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
+	# return everything
+	return t_stat, df, cv, p
+
 
 def printInsight(start, end, daily = False, weekly = False):
     dailyData,weeklyData = csv_to_pd()
