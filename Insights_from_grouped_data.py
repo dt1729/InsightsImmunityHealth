@@ -21,17 +21,19 @@ def findingDaysfromWeek(week_num,insightDuration,daily_data):
     # week start should be a multiple of 7 or 0
     # might have to make it week_num - 1 if the year is normal currently leap year so week_num-2
     week_start = 7*(week_num-2)
-    return daily_data[week_start:week_start+7*insightDuration][2]
-# combining this with 
+    return daily_data[week_start:week_start+7*insightDuration]['Steps'], daily_data[week_start:week_start+7*10]['Steps']
+
 def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
 #   THIS FUNCTION FINDS and STORES THE INSIGHTS ON THE BASIS OF A 4WEEK/28DAY PERIOD 
 #   ALSO FINDS ON THE BASIS OF 3 and 2 weeks
     steps_week_np = steps_week.to_numpy()
+    temp = steps_week_np[len(steps_week_np)-13:len(steps_week_np)-2]
     steps_12week = np.flip(steps_week_np[len(steps_week_np)-13:len(steps_week_np)-2],axis = 0) #flipping the last to the first for easier access to indices 
-    sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 4),'stdDev':np.zeros(len(steps_12week) - 4),'weeknum':steps_week_np[0][0]} #hardcoded sliding possibilities according to a month
-    sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':steps_week_np[0][0]}
-    sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':steps_week_np[0][0]}
-#     finding mean of Grouped weekly data
+    weeknum = np.unique([steps_12week[i][0] for i in range(0,len(steps_12week))]) #finding unique week numbers from which insights need to be extracted
+    sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 4),'stdDev':np.zeros(len(steps_12week) - 4),'weeknum':weeknum} #hardcoded sliding possibilities according to a month
+    sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':weeknum}
+    sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':weeknum}
+#     finding mean of Grouped weekly 
     sliding_insight_four_week['mean'] = [np.mean(steps_12week[i:i+4,1]) for i in range(0,len(steps_12week)-4)]
     if threeWeek:
         sliding_insight_three_week['mean'] = [np.mean(steps_12week[i:i+3,1]) for i in range(0,len(steps_12week)-3)]
@@ -40,32 +42,42 @@ def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
     return sliding_insight_four_week,sliding_insight_three_week,sliding_insight_two_week
 # CAN USE THIS OR STUDENT'S T TEST
 def tTest(data1,data2,alpha):
-	# calculate means
-	mean1, mean2 = mean(data1), mean(data2)
-	# number of paired samples
-	n1 = len(data1)
+    # calculate means
+    data1 = data1.to_numpy()
+    data2 = data2.to_numpy()
+    mean1, mean2 = np.mean(data1), np.mean(data2)
+    # number of paired samples
+    n1 = len(data1)
     n2 = len(data2)
-	# sum squared difference between observations
-	sp = np.std(data1)**2
-	# sum difference between observations
-	s2 = np.std(data2)**2
-	# standard deviation of the difference between means
-	den = np.sqrt(s1/len(data1) + s2/len(data2))
-	# standard error of the difference between the means
-	num = (mean1 - mean2)
-	# calculate the t statistic
-	t_stat = num/den
-	# degrees of freedom
-	df = ((s1**2/n1) + (s2**2/n2))**2/((s1**2/n1)**2/(n1-1) + (s2**2/n2)**2/(n2-1))
-	# calculate the critical value
-	cv = t.ppf(1.0 - alpha, df)
-	# calculate the p-value
-	p = (1.0 - t.cdf(abs(t_stat), df)) * 2.0
-	# return everything
-	return t_stat, df, cv, p
+    # sum squared difference between observations
+    s1 = np.std(data1)**2
+    # sum difference between observations
+    s2 = np.std(data2)**2
+    # standard deviation of the difference between means
+    den = np.sqrt(s1/len(data1) + s2/len(data2))
+    # standard error of the difference between the means
+    num = (mean1 - mean2)
+    # calculate the t statistic
+    t_stat = num/den
+    # degrees of freedom
+    df = ((s1**2/n1) + (s2**2/n2))**2/((s1**2/n1)**2/(n1-1) + (s2**2/n2)**2/(n2-1))
+    # calculate the critical value
+    cv = scipy.stats.t.ppf(1.0 - alpha, df)
+    # calculate the p-value
+    p = (1.0 - scipy.stats.t.cdf(abs(t_stat), df)) * 2.0
+    
+    # return everything
+    return t_stat, df, cv, p
+#     return data2
 def gettingInsights():
     steps_per_day,steps_per_week = csv_to_pd()
-    dict4week,dict3week,dict2week = 
+#     print(steps_per_day)
+    dict4week,dict3week,dict2week = setofInsightMonthly(steps_per_week,threeWeek = True,twoWeek = True)
+    dailydatanumpy1,dailydata12week = findingDaysfromWeek(dict4week['weeknum'][0],4,steps_per_day)
+#     print(dailydatanumpy1)
+    dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][1],4,steps_per_day)
+    # two 4 week insight comparison
+    return tTest(dailydatanumpy1,dailydatanumpy2,0.05)
 
 def printInsight(start, end, daily = False, weekly = False):
     dailyData,weeklyData = csv_to_pd()
