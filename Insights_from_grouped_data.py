@@ -98,12 +98,7 @@ def weekInsight(weekconsidered,steps_per_day,WeekgroupedData,groupSize):
     meandiff = []
     for i in range(0,len(WeekgroupedData['weeknum'])):
         dailydatanumpy2,_ = findingDaysfromWeek(WeekgroupedData['weeknum'][i],groupSize,steps_per_day)
-#         print(dailydatanumpy2)
         t_stat,_,_,p =  tTest(dailydatanumpy1,dailydatanumpy2,0.05)
-#         print('t_stat:')
-#         print(t_stat)
-#         print('p:')
-#         print(p)
         if t_stat > p:
             insight.append(WeekgroupedData['weeknum'][i])
             meandiff.append(WeekgroupedData['mean'][weekIndexGrouped] - WeekgroupedData['mean'][i])
