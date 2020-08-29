@@ -26,6 +26,7 @@ def findingDaysfromWeek(week_num,insightDuration,daily_data):
         week_start = 7*(week_num-2)
     return daily_data[week_start:week_start+7*insightDuration]['Steps'], daily_data[week_start:week_start+7*10]['Steps']
 
+# combining this with 
 def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
 #   THIS FUNCTION FINDS and STORES THE INSIGHTS ON THE BASIS OF A 4WEEK/28DAY PERIOD 
 #   ALSO FINDS ON THE BASIS OF 3 and 2 weeks
@@ -33,17 +34,20 @@ def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
     temp = steps_week_np[len(steps_week_np)-13:len(steps_week_np)-2]
     steps_12week = np.flip(steps_week_np[len(steps_week_np)-13:len(steps_week_np)-2],axis = 0) #flipping the last to the first for easier access to indices 
     weeknum = np.unique([steps_12week[i][0] for i in range(0,len(steps_12week))]) #finding unique week numbers from which insights need to be extracted
-    sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 4),'stdDev':np.zeros(len(steps_12week) - 4),'weeknum':weeknum} #hardcoded sliding possibilities according to a month
-    sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':weeknum}
-    sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':weeknum}
+    sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 4),'stdDev':np.zeros(len(steps_12week) - 4),'weeknum':[]} #hardcoded sliding possibilities according to a month
+    sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':[]}
+    sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':[]}
 #     finding mean of Grouped weekly 
     sliding_insight_four_week['mean'] = [np.mean(steps_12week[i:i+4,1]) for i in range(0,len(steps_12week)-4)]
+    sliding_insight_four_week['weeknum'] = [steps_12week[i:i+4,0][-1] for i in range(0,len(steps_12week)-4)]
     if threeWeek:
         sliding_insight_three_week['mean'] = [np.mean(steps_12week[i:i+3,1]) for i in range(0,len(steps_12week)-3)]
+        sliding_insight_three_week['weeknum'] = [steps_12week[i:i+3,0][-1] for i in range(0,len(steps_12week)-3)]
     if twoWeek:
         sliding_insight_two_week['mean'] = [(np.mean(steps_12week[i:i+2,1])) for i in range(0,len(steps_12week)-2)]
+        sliding_insight_two_week['weeknum'] = [steps_12week[i:i+2,0][-1] for i in range(0,len(steps_12week)-2)]
     return sliding_insight_four_week,sliding_insight_three_week,sliding_insight_two_week
-# CAN USE THIS OR STUDENT'S T TEST
+
 def tTest(data1,data2,alpha):
     # calculate means
     data1 = data1.to_numpy()
@@ -76,20 +80,27 @@ def gettingInsights():
     steps_per_day,steps_per_week = csv_to_pd()
 #     print(steps_per_day)
     dict4week,dict3week,dict2week = setofInsightMonthly(steps_per_week,threeWeek = True,twoWeek = True)
-
-    dailydatanumpy1,dailydata12week = findingDaysfromWeek(1,4,steps_per_day)
+    weekconsidered = 233
+    dailydatanumpy1,dailydata12week = findingDaysfromWeek(weekconsidered,3,steps_per_day)
+    print(dict3week['mean'][3])
+    print(dict3week['weeknum'])
 #     print(dailydatanumpy1)
-    dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][0],4,steps_per_day)
+#     dailydatanumpy2,_ = findingDaysfromWeek(19,4,steps_per_day)
     insight = []
-    for i in range(1,len(dict4week['weeknum'])):
-        dailydatanumpy2,_ = findingDaysfromWeek(dict4week['weeknum'][i],4,steps_per_day)
-        t_stat,_,_,p =  tTest(dailydatanumpy1,dailydatanumpy2,0.25)
+    meandiff = []
+    for i in range(1,len(dict3week['weeknum'])):
+        dailydatanumpy2,_ = findingDaysfromWeek(dict3week['weeknum'][i],2,steps_per_day)
+#         print(dailydatanumpy2)
+        t_stat,_,_,p =  tTest(dailydatanumpy1,dailydatanumpy2,0.05)
+        print('t_stat:')
         print(t_stat)
+        print('p:')
         print(p)
         if t_stat > p:
-            insight.append(dict2week['weeknum'][i])
+            insight.append(dict3week['weeknum'][i])
+            meandiff.append(dict3week['mean'][3] - dict3week['mean'][i])
     # two 4 week insight comparison
-    return insight
+    return insight,meandiff
 
 def printInsight(start, end, daily = False, weekly = False):
     dailyData,weeklyData = csv_to_pd()
