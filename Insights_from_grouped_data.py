@@ -88,6 +88,7 @@ def tTest(data1,data2,alpha):
     # return everything
 #     return data2
 
+
 def gettingInsights():
     steps_per_day,steps_per_week = csv_to_pd()
 #     print(steps_per_day)
@@ -96,26 +97,43 @@ def gettingInsights():
     weekconsidered = 233
     insight2week,meandiff2week = weekInsight(weekconsidered,steps_per_day,dict2week,2)
     insight3week,meandiff3week = weekInsight(weekconsidered,steps_per_day,dict3week,3)
-    insight4week,meandiff4week = weekInsight(weekconsidered,steps_per_day,dict3week,4)
-#     print(meandiff2week)
-#     print(meandiff3week)
-#     print(meandiff4week)
+    insight4week,meandiff4week = weekInsight(weekconsidered,steps_per_day,dict4week,4)
+    weekNo2week,maxdiff2week = printGroupedInsightsHelper(insight2week,meandiff2week)
+    weekNo3week,maxdiff3week = printGroupedInsightsHelper(insight3week,meandiff3week)
+    weekNo4week,maxdiff4week = printGroupedInsightsHelper(insight4week,meandiff4week)
+    print(maxdiff2week)
+    print(maxdiff3week)
+    print(maxdiff4week)
+    print(weekNo2week)
+    print(weekNo3week)
+    print(weekNo4week)
 def weekInsight(weekconsidered,steps_per_day,WeekgroupedData,groupSize):
     dailydatanumpy1,dailydata12week = findingDaysfromWeek(weekconsidered,groupSize,steps_per_day)
     a = np.array(WeekgroupedData['weeknum'])
     weekIndexGrouped = list(np.where(a == weekconsidered))
+#     print(weekIndexGrouped[0])
+#     print(WeekgroupedData['weeknum'])
+    if len(weekIndexGrouped[0]) == 0:
+        insight = []
+        meandiff = []
+        return insight,meandiff
     weekIndex = int(weekIndexGrouped[0])
-    print(WeekgroupedData['weeknum'])
     insight = []
     meandiff = []
     for i in range(0,len(WeekgroupedData['weeknum'])):
         dailydatanumpy2,_ = findingDaysfromWeek(WeekgroupedData['weeknum'][i],groupSize,steps_per_day)
         t_stat,_,_,p =  tTest(dailydatanumpy1,dailydatanumpy2,0.05)
-        if t_stat > p and WeekgroupedData['weeknum'][i] > weekIndex:
+        if t_stat > p and weekIndex > i:
             insight.append(WeekgroupedData['weeknum'][i])
             meandiff.append(WeekgroupedData['mean'][weekIndex] - WeekgroupedData['mean'][i])
     # two 4 week insight comparison
     return insight,meandiff
+def printGroupedInsightsHelper(insight,meandiff):
+    meandiffabs = [abs(number) for number in meandiff]
+    print(meandiffabs)
+    maxdiff = np.amax(meandiffabs)
+    index = np.where(meandiffabs == maxdiff)
+    return insight[int(index[0])],meandiffabs[int(index[0])]
 
 
 def printInsight(start, end, daily = False, weekly = False):
