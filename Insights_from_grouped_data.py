@@ -16,6 +16,8 @@ def dailyInsights(df_day):
     dailyChanges = np.zeros_like(df_day['Steps'])
     for i in range(1,len(weeklyChanges)):
         weeklyChanges[i] = df_day['Steps'][i] - df_day['Steps'][i-1]
+
+        
 # give this function numpy data input
 def findingDaysfromWeek(week_num,insightDuration,daily_data):
     # week start should be a multiple of 7 or 0
@@ -35,12 +37,15 @@ def findingDaysfromWeek(week_num,insightDuration,daily_data):
     else:
         week_start = 7*(week_num-2)
     return daily_data[week_start:week_start+7*insightDuration]['Steps'], daily_data[week_start:week_start+7*10]['Steps']
-# combining this with 
+
+
+
 def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
 #   THIS FUNCTION FINDS and STORES THE INSIGHTS ON THE BASIS OF A 4WEEK/28DAY PERIOD 
 #   ALSO FINDS ON THE BASIS OF 3 and 2 weeks
     steps_week_np = steps_week.to_numpy()
     temp = steps_week_np[len(steps_week_np)-12:len(steps_week_np)-1]
+
 #     steps_12week = np.flip(steps_week_np[len(steps_week_np)-12:len(steps_week_np)],axis = 0) #flipping the last to the first for easier access to indices 
     steps_12week = steps_week_np[len(steps_week_np)-12:len(steps_week_np)-1]
     weeknum = np.unique([steps_12week[i][0] for i in range(0,len(steps_12week))]) #finding unique week numbers from which insights need to be extracted
@@ -48,6 +53,7 @@ def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
     sliding_insight_four_week = {'mean':np.zeros(len(steps_12week) - 3),'stdDev':np.zeros(len(steps_12week) - 3),'weeknum':[]} #hardcoded sliding possibilities according to a month
     sliding_insight_three_week = {'mean':np.zeros(len(steps_12week) - 2),'stdDev':np.zeros(len(steps_12week) - 2),'weeknum':[]}
     sliding_insight_two_week = {'mean':np.zeros(len(steps_12week) - 1),'stdDev':np.zeros(len(steps_12week) - 1),'weeknum':[]}
+
 #     finding mean of Grouped weekly 
     sliding_insight_four_week['mean'] = [np.mean(steps_12week[i:i+4,1]) for i in range(0,len(steps_12week)-3)]
     sliding_insight_four_week['weeknum'] = [weeknum[i:i+4][0] for i in range(0,len(steps_12week)-3)]
@@ -59,6 +65,8 @@ def setofInsightMonthly(steps_week,threeWeek = False,twoWeek = False):
         sliding_insight_two_week['mean'] = [(np.mean(steps_12week[i:i+2,1])) for i in range(0,len(steps_12week)-1)]
         sliding_insight_two_week['weeknum'] = [weeknum[i:i+2][0] for i in range(0,len(steps_12week)-1)]
     return sliding_insight_four_week,sliding_insight_three_week,sliding_insight_two_week
+
+
 # CAN USE THIS OR STUDENT'S T TEST
 def tTest(data1,data2,alpha):
     # calculate means
@@ -101,15 +109,19 @@ def gettingInsights():
     weekNo2week,maxdiff2week = printGroupedInsightsHelper(insight2week,meandiff2week)
     weekNo3week,maxdiff3week = printGroupedInsightsHelper(insight3week,meandiff3week)
     weekNo4week,maxdiff4week = printGroupedInsightsHelper(insight4week,meandiff4week)
+
     if printGroupInsight(weekNo2week,meandiff2week,insight2week):
         print(maxdiff2week)
         print(weekNo2week)
+
     else:
         print('Please keep up your walking your performance went down from week '+str(weekNo2week)+' to '+str(weekNo2week+1)+' by '+str(maxdiff2week)+' on average')
+
     print(maxdiff3week)
     print(maxdiff4week)
     print(weekNo3week)
     print(weekNo4week)
+
 def weekInsight(weekconsidered,steps_per_day,WeekgroupedData,groupSize):
     dailydatanumpy1,dailydata12week = findingDaysfromWeek(weekconsidered,groupSize,steps_per_day)
     a = np.array(WeekgroupedData['weeknum'])
@@ -131,12 +143,14 @@ def weekInsight(weekconsidered,steps_per_day,WeekgroupedData,groupSize):
             meandiff.append(WeekgroupedData['mean'][weekIndex] - WeekgroupedData['mean'][i])
     # two 4 week insight comparison
     return insight,meandiff
+
 def printGroupedInsightsHelper(insight,meandiff):
     meandiffabs = [abs(number) for number in meandiff]
     print(meandiffabs)
     maxdiff = np.amax(meandiffabs)
     index = np.where(meandiffabs == maxdiff)
     return insight[int(index[0])],meandiffabs[int(index[0])]
+
 def printGroupInsight(insightweek,meandiff,weeknum):
     indexInsight = np.where(weeknum == insightweek)
     if meandiff[int(indexInsight[0])] > 0:
