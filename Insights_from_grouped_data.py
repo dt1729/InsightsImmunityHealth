@@ -101,10 +101,13 @@ def gettingInsights():
     weekNo2week,maxdiff2week = printGroupedInsightsHelper(insight2week,meandiff2week)
     weekNo3week,maxdiff3week = printGroupedInsightsHelper(insight3week,meandiff3week)
     weekNo4week,maxdiff4week = printGroupedInsightsHelper(insight4week,meandiff4week)
-    print(maxdiff2week)
+    if printGroupInsight(weekNo2week,meandiff2week,insight2week):
+        print(maxdiff2week)
+        print(weekNo2week)
+    else:
+        print('Please keep up your walking your performance went down from week '+str(weekNo2week)+' to '+str(weekNo2week+1)+' by '+str(maxdiff2week)+' on average')
     print(maxdiff3week)
     print(maxdiff4week)
-    print(weekNo2week)
     print(weekNo3week)
     print(weekNo4week)
 def weekInsight(weekconsidered,steps_per_day,WeekgroupedData,groupSize):
@@ -134,6 +137,12 @@ def printGroupedInsightsHelper(insight,meandiff):
     maxdiff = np.amax(meandiffabs)
     index = np.where(meandiffabs == maxdiff)
     return insight[int(index[0])],meandiffabs[int(index[0])]
+def printGroupInsight(insightweek,meandiff,weeknum):
+    indexInsight = np.where(weeknum == insightweek)
+    if meandiff[int(indexInsight[0])] > 0:
+        return True
+    else:
+        return False
 
 
 def printInsight(start, end, daily = False, weekly = False):
