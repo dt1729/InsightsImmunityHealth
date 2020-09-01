@@ -17,7 +17,7 @@ def dailyInsights(df_day):
     for i in range(1,len(weeklyChanges)):
         weeklyChanges[i] = df_day['Steps'][i] - df_day['Steps'][i-1]
 
-        
+
 # give this function numpy data input
 def findingDaysfromWeek(week_num,insightDuration,daily_data):
     # week start should be a multiple of 7 or 0
@@ -166,15 +166,18 @@ def printInsight(start, end, daily = False, weekly = False):
         day2 = dailyData['Steps'][end]
         dailychange = day1 - day2
         percent = lambda x,y: str(((x-y)/x)*100)
+
         if dailychange < 0:
             print('Your cardio has dropped by '+str(abs(dailychange))+' steps please keep walking')
         else:
             print('Your walking increased by '+str(dailychange)+' steps good job!')
+
     elif weekly:
         week1 = weeklyData['Steps'][start]
         week2 = weeklyData['Steps'][end]
         weeklychange = week1 - week2
         percent = lambda x,y: str((x-y/x)*100)
+        
         if weeklychange < 0:
             print('Your cardio has dropped by '+str(abs(weeklychange))+' steps this week please keep walking')
         else:
